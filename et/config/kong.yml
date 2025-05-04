@@ -1,0 +1,15 @@
+_format_version: "2.1"
+
+services:
+  - name: auth-service
+    url: http://172.20.0.6:9811
+    routes:
+      - name: sign-up
+        paths:
+          - /auth/v1/signup
+  - name: user-service
+    url: http://172.20.0.5:9810
+    routes:
+      - name: get-user
+        paths:
+          - /users/v1/getUser
