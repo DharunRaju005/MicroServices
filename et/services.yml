@@ -1,4 +1,68 @@
-version: '3.8'
+# version: '3.8'
+# services:
+#   zookeeper:
+#     image: confluentinc/cp-zookeeper:7.4.4
+#     environment:
+#       ZOOKEEPER_CLIENT_PORT: 2181
+#       ZOOKEEPER_TICK_TIME: 2000
+#     ports:
+#       - 2181:2181
+#     networks:
+#       - app-network
+
+#   kafka:
+#     image: confluentinc/cp-kafka:7.4.4
+#     depends_on:
+#       - zookeeper
+#     ports:
+#       - 9092:9092
+#     environment:
+#       KAFKA_BROKER_ID: 1
+#       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+#       KAFKA_LISTENERS: PLAINTEXT://:9092
+#       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+#       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+#       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#     networks:
+#       - app-network
+
+#   mysql:
+#     image: mysql:8.3.0
+#     container_name: mysql-8.3.0
+#     restart: always
+#     environment:
+#       MYSQL_USER: test
+#       MYSQL_ROOT_USER: root
+#       MYSQL_PASSWORD: 'password'
+#       MYSQL_ROOT_PASSWORD: 'password'
+#       MYSQL_DATABASE: authservice
+#     ports:
+#       - '3306:3306'
+#     expose:
+#       - '3306'
+#     volumes:
+#       - mysql-db:/var/lib/mysql
+#       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+#     networks:
+#       - app-network
+#     healthcheck:
+#       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 10
+#       start_period: 30s
+
+# volumes:
+#   mysql-db:
+#     driver: local
+
+# networks:
+#   app-network:
+#     driver: bridge
+
+version: '3'
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
@@ -7,8 +71,6 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 2181:2181
-    networks:
-      - app-network
 
   kafka:
     image: confluentinc/cp-kafka:7.4.4
@@ -19,44 +81,46 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://127.0.0.1:9092
       KAFKA_LISTENERS: PLAINTEXT://:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - app-network
 
   mysql:
     image: mysql:8.3.0
     container_name: mysql-8.3.0
     restart: always
     environment:
-      MYSQL_USER: test
+      MYSQL_USER: root
       MYSQL_ROOT_USER: root
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
-      MYSQL_DATABASE: authservice
     ports:
       - '3306:3306'
     expose:
       - '3306'
     volumes:
       - mysql-db:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+
+  user-service:
+    image: user-service
+    container_name: user-service
+    ports:
+      - '9810:9810'
+    depends_on:
+      - kafka
+      - mysql
+
+  auth-service:
+    image: auth-service
+    container_name: auth-service
+    ports:
+      - '9898:9811'
+    depends_on:
+      - kafka
+      - mysql
 
 volumes:
   mysql-db:
     driver: local
-
-networks:
-  app-network:
-    driver: bridge
