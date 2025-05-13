@@ -21,7 +21,15 @@ public class UserService {
 
     @Transactional
     public UserInfoDto createOrUpdateUser(UserInfoDto userInfoDto){
-        UnaryOperator<UserInfo> updatingUser = user -> userRepository.save(userInfoDto.transformToUserInfo());
+        UnaryOperator<UserInfo> updatingUser = (user) -> {
+            user.setUserId(userInfoDto.getUserId());
+            user.setFirstName(userInfoDto.getFirstName());
+            user.setLastName(userInfoDto.getLastName());
+            user.setEmail(userInfoDto.getEmail());
+            user.setPhoneNumber(userInfoDto.getPhoneNumber());
+            user.setProfilePic(userInfoDto.getProfilePic());
+            return userRepository.save(userInfoDto.transformToUserInfo());
+        };
 
         Supplier<UserInfo> createUser = () -> userRepository.save(userInfoDto.transformToUserInfo());
 
