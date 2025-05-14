@@ -1,15 +1,28 @@
-_format_version: "2.1"
+_format_version: "3.0"
+_transform: true
 
 services:
   - name: auth-service
-    url: http://172.20.0.6:9811
+    # url: http://172.18.0.5:9811
+    url: http://auth-service:9811
+    # since we have connecting every services under the same network we can use the container name instead of ip and moreover on every restart the ip of the container may change so it is not a good practice have the ip
     routes:
       - name: sign-up
         paths:
           - /auth/v1/signup
   - name: user-service
-    url: http://172.20.0.5:9810
+    # url: http://172.18.0.6:9810
+    url: http://user-service:9810
     routes:
       - name: get-user
         paths:
           - /users/v1/getUser
+# plugins:
+#   - name: jwt
+#     service: auth-service
+#   - name: jwt
+#     service: auth-service
+#   - name: key-auth
+#   - name: acl
+
+        
