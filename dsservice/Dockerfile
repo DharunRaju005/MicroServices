@@ -10,6 +10,9 @@ RUN pip install --no-cache-dir ds_service-1.0.tar.gz
 # Set the environment variable for the Flask app
 ENV FLASK_APP=src/app/__init__.py
 
+ENV FLASK_ENV=development        
+ENV FLASK_DEBUG=1  
+
 # Expose the port
 EXPOSE 8010
 

@@ -27,6 +27,11 @@ class LLMService:
         self.llm=ChatMistralAI(api_key=self.apiKey,model="mistral-large-latest")
         self.runnable = self.prompt | self.llm.with_structured_output(schema=Expense)
 
-    def runLLM(self,message):
-        return self.runnable.invoke({"text":message})
+    def runLLM(self, message):
+        try:
+            return self.runnable.invoke({"text": message})
+        except Exception as e:
+            print("[runLLM] Error during LLM invoke:", e)
+            return None
+
 

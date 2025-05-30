@@ -97,8 +97,8 @@ services:
     restart: always
     environment:
       MYSQL_USER: root
-      MYSQL_ROOT_USER: root
-      MYSQL_PASSWORD: 'password'
+      # MYSQL_ROOT_USER: root
+      # MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
     ports:
       - '3306:3306'
@@ -169,7 +169,8 @@ services:
     environment:
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
-      OPENAI_API_KEY: uhL33lPfvF1I32YAJk1bj3sjC29oNjDD
+      OPENAI_API_KEY: fill ur apikey here from mistral
+      ENV FLASK_ENV: development
     depends_on:
       - kafka
       - mysql
