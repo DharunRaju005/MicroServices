@@ -1,4 +1,4 @@
-package com.example.userservice.consumer;
+package com.example.userservice.controller;
 
 
 import com.example.userservice.entities.UserInfoDto;
@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,10 +16,10 @@ public class UserController {
     @Autowired
     private final UserService userService;
 
-    @GetMapping("/users/v1/getUser")
-    public ResponseEntity<UserInfoDto> getUser(@RequestBody UserInfoDto userInfoDto){
+    @GetMapping("/users/v1/getUser/{userId}")
+    public ResponseEntity<UserInfoDto> getUser(@PathVariable String userId){
         try{
-            UserInfoDto user=userService.getUser(userInfoDto);
+            UserInfoDto user=userService.getUserById(userId);
             return new ResponseEntity<>(user,HttpStatus.OK);
         }
         catch(Exception e){
@@ -30,7 +27,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/v1/createUpdate")
+    @PostMapping("/users/v1/createUpdate")
     public ResponseEntity<UserInfoDto> createUpdateUser(@RequestBody UserInfoDto userInfoDto){
         try{
             UserInfoDto user=userService.createOrUpdateUser(userInfoDto);
@@ -41,7 +38,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/health")
+    @GetMapping("/users/v1/health")
     public ResponseEntity<Boolean> health(){
         return new ResponseEntity<>(true,HttpStatus.OK);
     }
