@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Getter
@@ -36,6 +37,8 @@ public class   ExpenseDto {
 
      @JsonProperty(value = "created_at")
      private Timestamp createdAt;
+
+     private BigDecimal amountValue;
 
      public ExpenseDto(String json){
           try{

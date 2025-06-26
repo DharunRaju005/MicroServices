@@ -11,6 +11,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +38,12 @@ public class ExpenseService {
         }
         //------------X--------
         setCurrency(expenseDto);
+
+        String uglyAmt=expenseDto.getAmount();
         try{
+            String amtOnly=uglyAmt.replaceAll("[^\\d]","");
+            BigDecimal actualAmount=new BigDecimal(amtOnly);
+            expenseDto.setAmountValue(actualAmount);
             expenseRepository.save(objectMapper.convertValue(expenseDto, Expense.class));
             return true;
         }catch (Exception e){
@@ -52,8 +58,8 @@ public class ExpenseService {
             return false;
         }
         Expense expense=expenseOptional.get();
-        expense.setAmount(expenseDto.getAmount());
-        expense.setCurrency(expenseDto.getCurrency());
+        expense.setAmount(new BigDecimal(expenseDto.getAmount()));
+        expense.setCurrency((expenseDto.getCurrency()));
         expense.setMerchant(Strings.isNotBlank(expenseDto.getMerchant())?expenseDto.getMerchant():expense.getMerchant());
         expense.setCurrency(Strings.isNotBlank(expenseDto.getCurrency())?expenseDto.getCurrency():expense.getCurrency());
         expenseRepository.save(expense);
