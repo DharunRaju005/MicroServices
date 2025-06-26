@@ -18,7 +18,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class ExpenseDto {
+public class   ExpenseDto {
      private String externalId;
 
      @JsonProperty(value = "amount")

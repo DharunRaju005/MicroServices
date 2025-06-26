@@ -45,9 +45,9 @@ public class ExpenseService {
         }
     }
 
-    public boolean updateExpense(ExpenseDto expenseDto) {
+    public boolean updateExpense(ExpenseDto expenseDto,String userId) {
         setCurrency(expenseDto);
-        Optional<Expense> expenseOptional=expenseRepository.findByUserIdAndExternalId(expenseDto.getUserId(),expenseDto.getExternalId());
+        Optional<Expense> expenseOptional=expenseRepository.findByUserIdAndExternalId(userId,expenseDto.getExternalId());
         if(expenseOptional.isEmpty()){
             return false;
         }
@@ -55,7 +55,7 @@ public class ExpenseService {
         expense.setAmount(expenseDto.getAmount());
         expense.setCurrency(expenseDto.getCurrency());
         expense.setMerchant(Strings.isNotBlank(expenseDto.getMerchant())?expenseDto.getMerchant():expense.getMerchant());
-        expense.setCurrency(Strings.isNotBlank(expenseDto.getCurrency())?expenseDto.getMerchant():expense.getCurrency());
+        expense.setCurrency(Strings.isNotBlank(expenseDto.getCurrency())?expenseDto.getCurrency():expense.getCurrency());
         expenseRepository.save(expense);
         return true;
     }

@@ -2,6 +2,9 @@ package com.example.service.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,21 +12,25 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Expense {
 
     @Id
     @Column(name="id")
+
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @Column(name="external_id")
     private String externalId;
 
+    @JsonProperty("user_id")
     @Column(name="user_id")
     private String userId;
 
@@ -42,7 +49,12 @@ public class Expense {
     @PrePersist
     @PreUpdate
     private void generateExternalId() {
-        this.externalId = UUID.randomUUID().toString();
+        if(this.externalId==null){
+            this.externalId = UUID.randomUUID().toString();
+        }
+        if(this.createdAt==null){
+            this.createdAt = new Timestamp(Instant.now().toEpochMilli());
+        }
     }
 
 

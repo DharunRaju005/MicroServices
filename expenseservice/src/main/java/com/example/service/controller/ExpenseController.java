@@ -52,7 +52,7 @@ public class ExpenseController {
     @PutMapping(path = "/updateExpense")
     public ResponseEntity<Boolean>updadteExpense(@RequestHeader(value = "X-User-Id") @NonNull String userId,@RequestBody ExpenseDto expenseDto) {
         try{
-            Boolean updationStatus = expenseService.updateExpense(expenseDto);
+            Boolean updationStatus = expenseService.updateExpense(expenseDto,userId);
             if(updationStatus) {
                 return new ResponseEntity<>(true, HttpStatus.OK);
             }
