@@ -23,7 +23,7 @@ public class UserDto extends Users {
     private String firstName;
     @NonNull
     private String lastName;
-    private String password;
+
     private Long phoneNumber;
     private String email;
 }

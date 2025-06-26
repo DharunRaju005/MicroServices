@@ -23,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.*;
 
 @Component
 @AllArgsConstructor
@@ -41,13 +43,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-
-        Users user=userRepository.findByUserName(userName);
-        if(user==null){
-            log.error("Username not found: "+userName);
-            throw new UsernameNotFoundException("Could not find the username "+userName);
+        if (userName == null || userName.isEmpty()) {
+            log.error("Username is null or empty");
+            throw new org.example.exceptions.ValidationException("Username cannot be empty");
         }
-        log.info("User Authenticated Successfully..!!!");
+
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            log.error("Username not found: " + userName);
+            throw new org.example.exceptions.ResourceNotFoundException("User", "username", userName);
+        }
+
+        log.info("User found successfully: {}", userName);
         return new CustomUserDetails(user);
     }
 
@@ -55,22 +62,51 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return userRepository.findByUserName(userDto.getUserName());
     }
 
-    public Boolean signupUser(UserDto userDto) {
-        //defining a function to check if email,password is correct
-//        if(ValidationUtil.validateUserAttributes(userDto)) {
-//            return false;
-//        }
-        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        if(Objects.nonNull(checkIfUserAlreadyExists(userDto))){
-            return false;
-        }
-        String userId=UUID.randomUUID().toString();
-        Users userInfo=new Users(userId,userDto.getUserName(),userDto.getPassword(),new HashSet<>());
-        userRepository.save(userInfo);
+    public String getUserByUsername(String username){
+        return Optional.of(userRepository.findByUserName(username)).map(Users::getUserId).orElse(null);
+    }
 
-        //sending to kafka
-        userInfoProducer.sendEventToKafka(userInfoEventToPublish(userDto,userId));
-        return true;
+
+    public Boolean signupUser(UserDto userDto) {
+        // Validate user input
+        if (userDto == null) {
+            throw new org.example.exceptions.ValidationException("User data cannot be null");
+        }
+
+        if (userDto.getUserName() == null || userDto.getUserName().isEmpty()) {
+            throw new org.example.exceptions.ValidationException("Username is required");
+        }
+
+        if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
+            throw new org.example.exceptions.ValidationException("Password is required");
+        }
+
+        // Check if user already exists
+        if (Objects.nonNull(checkIfUserAlreadyExists(userDto))) {
+            throw new org.example.exceptions.UserException("User already exists with username: " + userDto.getUserName());
+        }
+
+        try {
+            // Encode password
+            userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+
+            // Generate user ID
+            String userId = UUID.randomUUID().toString();
+            userDto.setUserId(userId);
+
+            // Create and save user
+            Users userInfo = new Users(userId, userDto.getUserName(), userDto.getPassword(), new HashSet<>());
+            userRepository.save(userInfo);
+
+            // Send to Kafka
+            userInfoProducer.sendEventToKafka(userInfoEventToPublish(userDto, userId));
+
+            log.info("User registered successfully: {}", userDto.getUserName());
+            return true;
+        } catch (Exception e) {
+            log.error("Error during user registration: {}", e.getMessage());
+            throw new RuntimeException("Error during user registration", e);
+        }
     }
 
     private UserInfoEvent userInfoEventToPublish(UserDto userInfoDto, String userId){

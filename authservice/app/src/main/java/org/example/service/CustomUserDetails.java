@@ -12,14 +12,14 @@ import java.util.List;
 
 public class CustomUserDetails extends Users implements UserDetails {
 
-    private String username;
-    private String password;
-
     Collection<? extends GrantedAuthority> authorities;
 
     public CustomUserDetails(Users byUserName) {
-        this.username=byUserName.getUserName();
-        this.password=byUserName.getPassword();
+
+        this.setPassword(byUserName.getPassword());
+        this.setUserId(byUserName.getUserId());
+        this.setUserName(byUserName.getUserName());
+
         List<GrantedAuthority>auths=new ArrayList<>();
         for(UserRole role:byUserName.getRoles()){
             auths.add(new SimpleGrantedAuthority(role.getName().toUpperCase()));
@@ -35,12 +35,17 @@ public class CustomUserDetails extends Users implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return super.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return super.getUserName();
+    }
+
+    @Override
+    public String getUserId() {
+        return super.getUserId();
     }
 
     @Override
