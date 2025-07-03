@@ -18,7 +18,7 @@ kafka_bootstrap_servers = f"{kafka_host}:{kafka_port}"
 producer=KafkaProducer(bootstrap_servers=kafka_bootstrap_servers,value_serializer=lambda v:json.dumps(v).encode('utf-8'))
 @app.route('/v1/ds/message/', methods=['POST'])
 def handle_message():
-    user_id = request.headers.get('x-user-id')
+    user_id = request.headers.get('X-User-Id')
     print("User ID:", user_id)
     
     message = request.json.get('message')
