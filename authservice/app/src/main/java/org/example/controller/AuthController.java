@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.Objects;
 
 @AllArgsConstructor
@@ -109,7 +110,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = String.class)))
     })
     @GetMapping("/auth/v1/ping")
-    public ResponseEntity<String> ping() {
+    public ResponseEntity<Map<String,String>> ping() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -120,8 +121,7 @@ public class AuthController {
         if (userId == null) {
             throw new org.example.exceptions.ResourceNotFoundException("User", "username", authentication.getName());
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(userId);
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("user_id",userId));
     }
 
     @Operation(
@@ -132,7 +132,7 @@ public class AuthController {
         @ApiResponse(responseCode = "200", description = "Service is healthy", 
                     content = @Content(schema = @Schema(implementation = String.class)))
     })
-    @GetMapping("/health")
+    @GetMapping("/auth/v1/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
